@@ -10,7 +10,7 @@ function start() {
 		tries = tries + 1
 		guess = getNumber("Guess the number")
 		//sanity check
-		if (typeof(guess) != "number) { 
+		if (typeof(guess) != "number") { 
 			alert("Invalid guess, input must be a positive integer")
 			continue
 		} else if (Math.floor(Math.abs(guess)) != guess) {
