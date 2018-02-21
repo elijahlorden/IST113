@@ -26,7 +26,7 @@ function start() {
 		
 		
 	}
-	alert("Correct, the number was " + baseline + ".\nIt took you " + tries " tries to guess the number.")
+	alert("Correct, the number was " + baseline + ".\nIt took you " + tries + " tries to guess the number.")
 	
 	
 }
