@@ -1,0 +1,140 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+div.circle {
+	border-radius: 50%;
+}
+
+div.topSky {
+	background-color: #0082FF;
+	width: 100%;
+	height: 200px;
+}
+
+div.bottomSky {
+	background-color: #0082FF;
+	width: 100%;
+	height: 180px;
+}
+
+div.ground {
+	background-color: #DDDDDD;
+	width: 100%;
+	height: 150px;
+}
+
+div.top {
+	background-color: #FFFFFF;
+	width: 50px;
+	height: 50px;
+	float: left;
+	margin: 100 auto;
+	position: relative;
+	left: -50%;
+}
+
+div.top-fix {
+	float: left;
+	position: relative;
+	left: 50%;
+}
+
+div.mid {
+	background-color: #FFFFFF;
+	width: 75px;
+	height: 75px;
+	float: left;
+	margin: 100 auto;
+	position: relative;
+	left: -50%;
+	bottom:15px;
+}
+
+div.mid-fix {
+	float: left;
+	position: relative;
+	left: 50%;
+	clear: left;
+}
+
+div.bottom {
+	background-color: #FFFFFF;
+	width: 100px;
+	height: 100px;
+	float: left;
+	margin: 100 auto;
+	position: relative;
+	left: -50%;
+	bottom:40px;
+}
+
+div.bottom-fix {
+	float: left;
+	position: relative;
+	left: 50%;
+	clear: left;
+}
+
+div.secondFix {
+	left: 75%;
+	clear:none;
+}
+
+div.second {
+	left: -50%;
+	clear:none;
+}
+
+div.secondMidFix {
+	left: 75%;
+	clear:none;
+}
+
+div.secondMid {
+	left: -84.5%;
+	clear:none;
+}
+
+div.secondBottomFix {
+	left: 75%;
+	clear:none;
+}
+
+div.secondBottom {
+	left: -101.5%;
+	clear:none;
+}
+
+div.sun {
+	background-color: #FFFF00;
+	width: 100px;
+	height: 100px;
+	float: left;
+	margin: 100 auto;
+	position: relative;
+	left: -25%;
+	
+}
+
+div.sun-fix {
+	float: left;
+	position: relative;
+	left: 75%;
+	clear: left;
+}
+
+div.sunSpacer {
+	width: 0px;
+	height: 20px;
+	float: left;
+}
+
+
+
+
+
+
+

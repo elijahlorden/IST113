@@ -1,0 +1,95 @@
+body {
+}
+
+h1,h2,h3 {
+	font-family: "Arial", sans-serif;
+}
+
+ol,ul {
+	width: 25%;
+	text-align: left;
+	margin: 5px auto;
+}
+
+p.page {
+	font-family: "Courier New";
+	font-size: 12px;
+	color: green;
+	background-color: #aaaaaa;
+	width: 30%;
+	border: 5px solid black;
+	margin: 15px auto;
+	padding: 10px;
+	text-align: center;
+}
+
+a.page {
+	color: #ff0000;
+	margin: 10px;
+}
+
+a:hover.page {
+	color: #0000ff;
+	margin: 10px;
+}
+
+div.page {
+	width: 75%;
+	box-sizing: border-box;
+	margin: 0px auto;
+	padding: 10px;
+	text-align: center;
+	background-color: #DDDDDD;
+	overflow: hidden;
+	height:400px;
+}
+
+div.sidebar {
+	float: right;
+	width: 25%;
+	height: 400px;
+	background-color: #AAAAAA;
+}
+
+p.sidebar {
+	text-align: center;
+}
+
+h1.sidebar {
+	font-size: 20px;
+	text-align: center;
+	
+}
+
+ul.sidebar {
+	width:100%;
+}
+
+div.header {
+	padding: 5px 10px;
+	background-color: #EEEEEE;
+}
+
+h1.header {
+	font-size: 12px;
+}
+
+p.header {
+	font-size: 10px;
+}
+
+div.footer {
+	background-color: #EEEEEE;
+	width:100%;
+	height:100px;
+}
+
+
+
+
+
+
+
+
+
+
