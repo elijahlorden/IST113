@@ -13,7 +13,7 @@ function start() {
 		if (typeof(guess) != "number") { 
 			alert("Invalid guess, input must be a positive integer")
 			continue
-		} else if (Math.floor(Math.abs(guess)) != guess) {
+		} else if (guess < 0) {
 			alert("Invalid guess, input must be a positive integer")
 			continue
 		}
