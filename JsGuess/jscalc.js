@@ -4,11 +4,13 @@ function start() {
 	var guess = 0
 	var tries = 0
 	while (typeof(baseline) != "number" || baseline < 0) {
-		baseline = getNumber("Enter a positive number")
+		baseline = getNumber("Enter a positive number (enter 0 to quit)")
+		if (baseline == 0) {return}
 	}
 	while (guess != baseline) {
 		tries = tries + 1
-		guess = getNumber("Guess the number")
+		guess = getNumber("Guess the number (enter 0 to quit)")
+		if (guess == 0) {return}
 		//sanity check
 		if (typeof(guess) != "number") { 
 			alert("Invalid guess, input must be a positive integer")
