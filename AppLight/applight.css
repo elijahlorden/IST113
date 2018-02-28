@@ -1,25 +1,36 @@
-.case {
-	background-color: white;
+.spacer1{	
+	background-color: #000000;
+	height:200px;
+}
+.text{
+	text-align: center;
+	margin-top:50%;
+	display:table-cell;
+	vertical-align:middle;
+	font-size:60px;
+	
+}
+.part2{
+	height:100%;
+	width:50%;
+	background-color:#dddddd;
+	display:table;
+	
 }
 
-.switch {
-	background-color: blue;
-	border: 2px solid black;
-	border-radius: 50px;
+
+.switch{	
+	background-color: grey;
 	width: 400px;
-	height: 240px;
+	height: 140px;
 	margin: 0 auto;
 }
 
-#toggle {
-	background-color: white;
-	text-align: center;
-	line-height: 220px;
-	font-size: 60px;
-	float: left;
-	border-radius: 100px;
-	border: 1px red;
-	width: 220px;
-	height: 220px; 
-	margin: 10px;
+.page {
+	height: 500px;
+	background-color: #000000;
+}
+
+.body {
+	background-color: #000000;
 }
