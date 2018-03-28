@@ -13,11 +13,15 @@
 }
 
 .inputTextfield {
-	width: 70%;
+	width: 55%;
 }
 
 .inputButton {
 	width: 10%;
+}
+
+.clearButton {
+	width: 14%;
 }
 
 .removeButton {

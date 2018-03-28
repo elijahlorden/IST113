@@ -63,6 +63,14 @@ function clear() {
 	});
 }
 
+function clearAll() {
+	$("#list").children().each(function() {
+		$(this).remove();
+	});
+	taskArray = [];
+	saveArray();
+}
+
 function redraw() {
 	clear();
 	let i = 0
@@ -101,4 +109,5 @@ $(function() {
 		taskArray.push(taskName);
 		saveArray();
 	});
+	$("#clearAll").on("click", clearAll);
 });
