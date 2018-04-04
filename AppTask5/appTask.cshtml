@@ -1,9 +1,11 @@
 @{
+	String name = Request["name"];
+	String email = Request["email"];
 	String response = "";
 	String initFormStyle = "display:none;";
 	if(IsPost) {
 		initFormStyle = "";
-		response = "Message sent";
+		response = "Message sent from " + name + " (" + email + ")";
 	}
 }
 
