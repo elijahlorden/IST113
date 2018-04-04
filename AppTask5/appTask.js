@@ -101,10 +101,6 @@ function fixIndices() {
 	});
 }
 
-function getFormString() {
-	return "";
-}
-
 function showHideForm() {
 	$("#JSForm").toggle();
 }
