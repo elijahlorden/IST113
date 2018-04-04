@@ -102,15 +102,11 @@ function fixIndices() {
 }
 
 function getFormString() {
-	return "<form action='' method='post' class='contactForm' id = 'JSForm'><fieldset class='contactFormFieldset'><label class='contactFormElement'>Email Address</label><input class='contactFormElement' type='email' placeholder='joe@example.com' name='email'></input></fieldset><fieldset class='contactFormFieldset'><label class='contactFormElement'> Name </label><input name='name' class='contactFormElement'></input></fieldset><fieldset class='contactFormFieldset'><textarea name='message' class='contactFormMessage'></textarea></fieldset><fieldset class='contactFormFieldset'><button>Submit</button></fieldset></form>";
+	return "";
 }
 
 function showHideForm() {
-	if($("#JSForm").length < 1) {
-		$("#page").append(getFormString());
-	} else {
-		$("#JSForm").remove();
-	}
+	$("#JSForm").toggle();
 }
 
 $(function() {

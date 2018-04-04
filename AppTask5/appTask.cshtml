@@ -1,3 +1,7 @@
+@{
+	String answer = "Message sent";
+}
+
 <!DOCTYPE html>
 <html lang='en'>
 <head>
@@ -15,6 +19,22 @@
 		<ul id="list"></ul>
 		</br>
 		<a id = "contactLink">Contact</a>
+		<form action='' method='post' class='contactForm' id = 'JSForm'>
+		<fieldset class='contactFormFieldset'>
+			<label class='contactFormElement'>Email Address</label>
+			<input class='contactFormElement' type='email' placeholder='joe@example.com' name='email'></input>
+		</fieldset>
+		<fieldset class='contactFormFieldset'>
+			<label class='contactFormElement'> Name </label>
+			<input name='name' class='contactFormElement'></input>
+		</fieldset>
+		<fieldset class='contactFormFieldset'>
+			<textarea name='message' class='contactFormMessage'></textarea>
+		</fieldset>
+		<fieldset class='contactFormFieldset'>
+			<button>Submit</button>
+		</fieldset>
+		</form>
   	</div>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="appTask.js"></script>
