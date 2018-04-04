@@ -1,8 +1,9 @@
 @{
-	String response = "Message sent";
+	String response = "";
 	String initFormStyle = "display:none;";
 	if(IsPost) {
 		initFormStyle = "";
+		response = "Message sent"
 	}
 }
 
@@ -39,7 +40,7 @@
 		</fieldset>
 		<fieldset class='contactFormFieldset'>
 			<button>Submit</button>
-			<label>@response</label>
+			<label class='contactFormElement'>@response</label>
 		</fieldset>
 		</form>
   	</div>
