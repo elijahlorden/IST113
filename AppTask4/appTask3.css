@@ -1,0 +1,72 @@
+
+* {
+	background-color: #DDDDDD;
+}
+
+.inputfs {
+	width: 400px;
+	margin: 5px auto;
+}
+
+.inputLabel {
+	width: 20%;
+}
+
+.inputTextfield {
+	width: 55%;
+}
+
+.inputButton {
+	width: 10%;
+}
+
+.clearButton {
+	width: 14%;
+}
+
+.removeButton {
+	float: right;
+}
+
+.upButton {
+	float: right;
+}
+
+.downButton {
+	float: right;
+}
+
+ul {
+    padding: 0;
+    list-style-type: none;
+}
+
+.contactForm {
+  background-color: #F6F7F8;
+  border: 1px solid #D6D9DC;
+  border-radius: 3px;
+  
+  width: 80%;
+  padding: 50px;
+  margin: 0 0 40px 0;
+}
+
+.contactFormElement {
+	background-color: #F6F7F8;
+}
+
+.contactFormMessage {
+	background-color: #F6F7F8;
+	width: 100%;
+	height: 200px;
+	text-align: left;
+}
+
+.contactFormFieldset {
+	background-color: #F6F7F8;
+	border: none;
+}
+
+.inlineBlock {
+	display: block;
+}
