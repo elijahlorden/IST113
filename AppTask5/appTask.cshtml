@@ -1,5 +1,9 @@
 @{
 	String answer = "Message sent";
+	String initFormStyle = "display:none;";
+	if(IsPost) {
+		initFormStyle = "";
+	}
 }
 
 <!DOCTYPE html>
@@ -18,8 +22,10 @@
 		</fieldset>
 		<ul id="list"></ul>
 		</br>
+		
 		<a id = "contactLink">Contact</a>
-		<form action='' method='post' class='contactForm' id = 'JSForm' style="display:none;">
+		
+		<form action='' method='post' class='contactForm' id = 'JSForm' style="@initFormStyle">
 		<fieldset class='contactFormFieldset'>
 			<label class='contactFormElement'>Email Address</label>
 			<input class='contactFormElement' type='email' placeholder='joe@example.com' name='email'></input>
