@@ -106,7 +106,6 @@ function showHideForm() {
 }
 
 $(function() {
-	$("#JSForm").toggle();
 	init();
 	$("#taskAdd").on("click", function() {
 		let taskName = $("#taskInput").val();
