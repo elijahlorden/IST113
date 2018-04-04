@@ -114,6 +114,7 @@ $(function() {
 		saveArray();
 	});
 	$("#clearAll").on("click", clearAll);
+	$("#JSForm").toggle();
 	$("#contactLink").on("click", showHideForm);
 });
 
