@@ -7,10 +7,10 @@
 
 // constants to prevent magic number issues
 var EMPTY = 0;
-var REDM = 1;
-var REDK = 2;
-var WHITEM = 3;
-var WHITEK = 4;
+var WHITEM = 1;
+var WHITEK = 2;
+var REDM = 3;
+var REDK = 4;
 
 // array definition for the initial board state
 var initialBoardState = [
@@ -36,15 +36,15 @@ var boardState = [
 ]
 
 // basic get and set functions for the live board state
-var getState = (x,y) => {if (x < boardState.length && y < boardState[x].length && x >= 0 && y >= 0) return boardState[x][y]; else return undefined;}
-var setState = (x,y,s) => {if (x < boardState.length && y < boardState[x].length && x >= 0 && y >= 0){boardState[x][y] = s; return true} else {return false}}
+var getState = (x,y) => {if (y < boardState.length && x < boardState[y].length && x >= 0 && y >= 0) return boardState[y][x]; else return undefined;}
+var setState = (x,y,s) => {if (y < boardState.length && x < boardState[y].length && x >= 0 && y >= 0){boardState[y][x] = s; return true} else {return false}}
 
 // for debug purposes, put live board state in a format that can be printed with an alert()
 function stringifyState() {
 	let s = "";
-	for (let x = 0; x < boardState.length; x++) {
-		for (let y = 0; y < boardState[x].length; y++) {
-			s += boardState[x][y] + " ";
+	for (let y = 0; y < boardState.length; y++) {
+		for (let x = 0; x < boardState[y].length; x++) {
+			s += getState(x,y) + " ";
 		}
 		s += "\n";
 	}
@@ -56,25 +56,52 @@ function stringifyState() {
 // array is formatted as ['moveType', x, y]
 // moveType 'move' specifies a normal one-tile move
 // moveType 'jump' specifies a jump
-function getValidMoves(x, y, isKing) {
+function getValidMoves(x, y) {
 	let tile = getState(x, y);
 	if (tile == undefined || tile == EMPTY) return []; // return empty array if tile is invalid
 	let moves = [];
+	//get relevent tiles
+	
+	let down1_1 = getState(x+1, y+1);
+	let down1_2 = getState(x+2, y+2);
+	let down2_1 = getState(x-1, y+1);
+	let down2_2 = getState(x-2, y+2);
+	
+	let up1_1 = getState(x+1, y-1);
+	let up1_2 = getState(x+2, y-2);
+	let up2_1 = getState(x-1, y-1);
+	let up2_2 = getState(x-2, y-2);
+	
 	//first check for basic moves
-	switch(tile) {
-		case REDM:
-		break;
-		case WHITEM:
-		break;
-	}
+	if (tile == REDM || tile == REDK || tile == WHITEK) {
+		if (down1_1 == EMPTY) moves.push(['move', x+1, y+1]);
+		if (down2_1 == EMPTY) moves.push(['move', x-1, y+1]);
+	} else if (tile == WHITEM || tile == REDK || tile == WHITEK) {
+		if (up1_1 == EMPTY) moves.push(['move', x+1, y-1]);
+		if (up2_1 == EMPTY) moves.push(['move', x-1, y-1]);
+	} else alert("Something has gone horribly wrong"); // this should never happen
 	
+	//now check for jumps
 	
+	if (tile == REDM) { // check for jumps if red man
+		
+		if (down1_1 == WHITEM && down1_2 == EMPTY) {
+			
+		}
+		
+	} else if (tile == WHITEM) { // check for jumps if white man
+		
+	} else if (tile == REDK) { // check for jumps if red king
+		
+	} else if (tile == WHITEK) { // check for jumps if white king
+		
+	} else alert("Something has gone horribly wrong"); // this should never happen
 	
 }
 
 $(function(){
 	boardState = initialBoardState;
-	alert(stringifyState());
+	getValidMoves(0,5);
 })
 
 
