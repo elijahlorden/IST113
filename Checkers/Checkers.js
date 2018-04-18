@@ -225,6 +225,7 @@ function tileClicked(x,y) {
 	}
 }
 
+
 $(function(){
 	preloadAssets();
 	boardState = newPopulatedBoardArray(8,8,3);
