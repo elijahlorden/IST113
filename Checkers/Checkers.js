@@ -1,20 +1,20 @@
 // ------ Constants ------ \\
 
-var EMPTY = 0;
-var WHITEM = 1;
-var WHITEK = 2;
-var REDM = 3;
-var REDK = 4;
+const EMPTY = 0;
+const WHITEM = 1;
+const WHITEK = 2;
+const REDM = 3;
+const REDK = 4;
 
-var TILE_RED = 0;
-var TILE_BLACK = 1;
-var TILE_YELLOW = 1;
+const TILE_RED = 0;
+const TILE_BLACK = 1;
+const TILE_YELLOW = 2;
 
-var RED_TURN = 0;
-var WHITE_TURN = 1;
+const RED_TURN = 0;
+const WHITE_TURN = 1;
 
 //Array of image URLs that must be persisted throughout the game.
-var assetsToPreload = [
+const assetsToPreload = [
 	"./assets/black_tile.png",
 	"./assets/white_man.png",
 	"./assets/white_king.png",
@@ -103,17 +103,21 @@ function getValidMoves(x, y) {
 	//now check for jumps
 	
 	if (tile == REDM) { // check for jumps if red man
-		
-		if (down1_1 == WHITEM && down1_2 == EMPTY) {
-			
-		}
-		
+		if (down1_1 == WHITEM && down1_2 == EMPTY) moves.push(['jump', x+2, y+2]);
+		if (down2_1 == WHITEM && down2_2 == EMPTY) moves.push(['jump', x-2, y+2]);
 	} else if (tile == WHITEM) { // check for jumps if white man
-		
+		if (up1_1 == REDM && up1_2 == EMPTY) moves.push(['jump', x+2, y-2]);
+		if (up2_1 == REDM && up2_2 == EMPTY) moves.push(['jump', x-2, y-2]);
 	} else if (tile == REDK) { // check for jumps if red king
-		
+		if ((down1_1 == WHITEM || down1_1 == WHITEK) && down1_2 == EMPTY) moves.push(['jump', x+2, y+2]);
+		if ((down2_1 == WHITEM || down2_1 == WHITEK) && down2_2 == EMPTY) moves.push(['jump', x-2, y+2]);
+		if ((up1_1 == WHITEM || up1_1 == WHITEK) && up1_2 == EMPTY) moves.push(['jump', x+2, y-2]);
+		if ((up2_1 == WHITEM || up2_1 == WHITEK) && up2_2 == EMPTY) moves.push(['jump', x-2, y-2]);
 	} else if (tile == WHITEK) { // check for jumps if white king
-		
+		if ((down1_1 == REDM || down1_1 == REDK) && down1_2 == EMPTY) moves.push(['jump', x+2, y+2]);
+		if ((down2_1 == REDM || down2_1 == REDK) && down2_2 == EMPTY) moves.push(['jump', x-2, y+2]);
+		if ((up1_1 == REDM || up1_1 == REDK) && up1_2 == EMPTY) moves.push(['jump', x+2, y-2]);
+		if ((up2_1 == REDM || up2_1 == REDK) && up2_2 == EMPTY) moves.push(['jump', x-2, y-2]);
 	} else alert("Something has gone horribly wrong"); // this should never happen
 	
 }
@@ -127,6 +131,7 @@ function getTileColor(x, y) {
 	}
 }
 
+//Return image string a tile color with a specific state
 function getTileImage(color, state) {
 	if (color == TILE_RED) {
 		return "assets/red_tile.png"; // no red tiles will ever be occupied
@@ -139,10 +144,17 @@ function getTileImage(color, state) {
 			case REDK: return "assets/red_king.png";
 		}
 	} else {
-		
+		switch(state) {
+			case EMPTY: return "assets/yellow_tile.png";
+			case WHITEM: return "assets/white_man_yellow.png";
+			case WHITEK: return "assets/white_king_yellow.png";
+			case REDM: return "assets/red_man_yellow.png";
+			case REDK: return "assets/red_king_yellow.png";
+		}
 	}
 }
 
+//Get a string representation of the specified tile
 function tileString(x, y) {
 	let state = getState(x, y);
 	let color = getTileColor(x, y);
@@ -152,6 +164,7 @@ function tileString(x, y) {
 	return "<img onclick='tileClicked("+x+","+y+")'src='" + image +"' style='margin: 0 0; padding: 0 0; border: none; height: 100%; width: " + tileSize + "%'/>";
 }
 
+//Get a string representation of the specified row
 function rowString(y) {
 	let fsHeight = 100/boardState.length;
 	let s = "<fieldset style='margin: 0 0; padding: 0 0; border: none; width: 100%; height:" + fsHeight +"%;'>";
@@ -201,28 +214,9 @@ function newPopulatedBoardArray(xSize, ySize, playerRows) {
 	return board;
 }
 
-var state = 0;
-
+//Called when a tile is clicked
 function tileClicked(x,y) {
-	state++;
-	switch(state) {
-		case 1:
-			boardState = newPopulatedBoardArray(10,10,4);
-			drawBoard($("#board"));
-			break;
-		case 2:
-			boardState = newPopulatedBoardArray(15,15,6);
-			drawBoard($("#board"));
-			break;
-		case 3:
-			boardState = newPopulatedBoardArray(40,40,9);
-			drawBoard($("#board"));
-			break;
-		default:
-			state = 0;
-			tileClicked(x,y);
-			break;
-	}
+	
 }
 
 
