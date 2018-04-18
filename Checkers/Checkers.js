@@ -1,28 +1,29 @@
-// 0 = empty tile
-// 1 = red man
-// 2 = red king
-// 3 = white man
-// 4 = white king
-// red starts bottom, white starts top
+// ------ Constants ------ \\
 
-// constants to prevent magic number issues
 var EMPTY = 0;
 var WHITEM = 1;
 var WHITEK = 2;
 var REDM = 3;
 var REDK = 4;
 
-// array definition for the initial board state
-var initialBoardState = [
-	[0,3,0,3,0,3,0,3],
-	[3,0,3,0,3,0,3,0],
-	[0,3,0,3,0,3,0,3],
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-	[1,0,1,0,1,0,1,0],
-	[0,1,0,1,0,1,0,1],
-	[1,0,1,0,1,0,1,0],
+var TILE_RED = 0;
+var TILE_BLACK = 1;
+var TILE_YELLOW = 1;
+
+var RED_TURN = 0;
+var WHITE_TURN = 1;
+
+//Array of image URLs that must be persisted throughout the game.
+var assetsToPreload = [
+	"./assets/black_tile.png",
+	"./assets/white_man.png",
+	"./assets/white_king.png",
+	"./assets/red_man.png",
+	"./assets/red_king.png",
+	"./assets/red_tile.png",
 ]
+
+// ------ Gamestate variables ------ \\
 
 // array holding the currrent state of the board
 var boardState = [
@@ -33,7 +34,25 @@ var boardState = [
 	[0,0,0,0,0,0,0,0],
 	[0,0,0,0,0,0,0,0],
 	[0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0],
 ]
+
+// ------ Functions ------ \\
+
+//preload images to prevent flicker
+
+var preloadRef = []
+function preloadAsset(url) {
+    var img=new Image();
+    img.src=url;
+	preloadRef.push(img);
+}
+
+function preloadAssets() {
+	for (let i in assetsToPreload) {
+		preloadAsset(assetsToPreload[i]);
+	}
+}
 
 // basic get and set functions for the live board state
 var getState = (x,y) => {if (y < boardState.length && x < boardState[y].length && x >= 0 && y >= 0) return boardState[y][x]; else return undefined;}
@@ -99,9 +118,117 @@ function getValidMoves(x, y) {
 	
 }
 
+//Get tile color based on it's coordinates
+function getTileColor(x, y) {
+	if (y%2 == 0) {
+		if (x%2 == 0) return TILE_RED; else return TILE_BLACK;
+	} else {
+		if (x%2 == 0) return TILE_BLACK; else return TILE_RED;
+	}
+}
+
+function getTileImage(color, state) {
+	if (color == TILE_RED) {
+		return "assets/red_tile.png"; // no red tiles will ever be occupied
+	} else if (color == TILE_BLACK) {
+		switch(state) {
+			case EMPTY: return "assets/black_tile.png";
+			case WHITEM: return "assets/white_man.png";
+			case WHITEK: return "assets/white_king.png";
+			case REDM: return "assets/red_man.png";
+			case REDK: return "assets/red_king.png";
+		}
+	} else {
+		
+	}
+}
+
+function tileString(x, y) {
+	let state = getState(x, y);
+	let color = getTileColor(x, y);
+	let image = getTileImage(color, state);
+	let xGridLength = boardState[0].length;
+	let tileSize = 100/xGridLength;
+	return "<img onclick='tileClicked("+x+","+y+")'src='" + image +"' style='margin: 0 0; padding: 0 0; border: none; height: 100%; width: " + tileSize + "%'/>";
+}
+
+function rowString(y) {
+	let fsHeight = 100/boardState.length;
+	let s = "<fieldset style='margin: 0 0; padding: 0 0; border: none; width: 100%; height:" + fsHeight +"%;'>";
+	for (let x=0;x<boardState[y].length;x++) {
+		s += tileString(x,y);
+	}
+	s += "</fieldset>";
+	return s;
+}
+//Draw the current boardState inside the provided jQuery object
+function drawBoard(obj) {
+	let boardString = ""
+	for (let y=0;y<boardState.length;y++) {
+		boardString += rowString(y);
+	}
+	obj.children().each(function() {
+		this.remove();
+	});
+	obj.append(boardString);
+}
+
+//Create a new, completely empty board array.
+function newBoardArray(xSize, ySize) {
+	let retArray = []
+	for (let y=0;y<ySize;y++) {
+		retArray[y] = [];
+		for (let x=0;x<xSize;x++) {
+			retArray[y][x] = EMPTY;
+		}
+	}
+	return retArray
+}
+
+//Create a new board array, populated with initial rows of pieces.
+function newPopulatedBoardArray(xSize, ySize, playerRows) {
+	let board = newBoardArray(xSize, ySize);
+	for (let y=0;y<playerRows;y++) {
+		for (let x=0;x<board[y].length;x++) {
+			if (getTileColor(x,y) == TILE_BLACK) board[y][x] = REDM;
+		}
+	}
+	for (let y=board.length-playerRows;y<board.length;y++) {
+		for (let x=0;x<board[y].length;x++) {
+			if (getTileColor(x,y) == TILE_BLACK) board[y][x] = WHITEM;
+		}
+	}
+	return board;
+}
+
+var state = 0;
+
+function tileClicked(x,y) {
+	state++;
+	switch(state) {
+		case 1:
+			boardState = newPopulatedBoardArray(10,10,4);
+			drawBoard($("#board"));
+			break;
+		case 2:
+			boardState = newPopulatedBoardArray(15,15,6);
+			drawBoard($("#board"));
+			break;
+		case 3:
+			boardState = newPopulatedBoardArray(40,40,9);
+			drawBoard($("#board"));
+			break;
+		default:
+			state = 0;
+			tileClicked(x,y);
+			break;
+	}
+}
+
 $(function(){
-	boardState = initialBoardState;
-	getValidMoves(0,5);
+	preloadAssets();
+	boardState = newPopulatedBoardArray(8,8,3);
+	drawBoard($("#board"));
 })
 
 
