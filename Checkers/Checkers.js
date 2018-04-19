@@ -44,8 +44,11 @@ var clickDB = false;
 var gameRunning = false;
 //Integer holding which side is currently playing
 var currentSide = undefined;
-//Array holding coordinates of currently selected tile
+//Boolean indicating if the current side has already jumped once in the current turn
+var jumpedOnce = false;
+//Arrays holding coordinates and possible moves for currently selected tile
 var selectedTile = [];
+var selectedTileMoves = [];
 //Array holding the current valid moveset
 var currentMoves = [];
 
@@ -118,23 +121,23 @@ function getValidMoves(x, y) {
 	//now check for jumps
 	
 	if (tile == REDM) { // check for jumps if red man
-		if (down1_1 == WHITEM && down1_2 == EMPTY) moves.push(['jump', x+2, y+2]);
-		if (down2_1 == WHITEM && down2_2 == EMPTY) moves.push(['jump', x-2, y+2]);
+		if (down1_1 == WHITEM && down1_2 == EMPTY) moves.push(['jump', x+2, y+2, x+1, y+1]);
+		if (down2_1 == WHITEM && down2_2 == EMPTY) moves.push(['jump', x-2, y+2, x-1, y+1]);
 	} else if (tile == WHITEM) { // check for jumps if white man
-		if (up1_1 == REDM && up1_2 == EMPTY) moves.push(['jump', x+2, y-2]);
-		if (up2_1 == REDM && up2_2 == EMPTY) moves.push(['jump', x-2, y-2]);
+		if (up1_1 == REDM && up1_2 == EMPTY) moves.push(['jump', x+2, y-2, x+1, y-1]);
+		if (up2_1 == REDM && up2_2 == EMPTY) moves.push(['jump', x-2, y-2, x-1, y-1]);
 	} else if (tile == REDK) { // check for jumps if red king
-		if ((down1_1 == WHITEM || down1_1 == WHITEK) && down1_2 == EMPTY) moves.push(['jump', x+2, y+2]);
-		if ((down2_1 == WHITEM || down2_1 == WHITEK) && down2_2 == EMPTY) moves.push(['jump', x-2, y+2]);
-		if ((up1_1 == WHITEM || up1_1 == WHITEK) && up1_2 == EMPTY) moves.push(['jump', x+2, y-2]);
-		if ((up2_1 == WHITEM || up2_1 == WHITEK) && up2_2 == EMPTY) moves.push(['jump', x-2, y-2]);
+		if ((down1_1 == WHITEM || down1_1 == WHITEK) && down1_2 == EMPTY) moves.push(['jump', x+2, y+2, x+1, y+1]);
+		if ((down2_1 == WHITEM || down2_1 == WHITEK) && down2_2 == EMPTY) moves.push(['jump', x-2, y+2, x-1, y+1]);
+		if ((up1_1 == WHITEM || up1_1 == WHITEK) && up1_2 == EMPTY) moves.push(['jump', x+2, y-2, x+1, y-1]);
+		if ((up2_1 == WHITEM || up2_1 == WHITEK) && up2_2 == EMPTY) moves.push(['jump', x-2, y-2, x-1, y-1]);
 	} else if (tile == WHITEK) { // check for jumps if white king
-		if ((down1_1 == REDM || down1_1 == REDK) && down1_2 == EMPTY) moves.push(['jump', x+2, y+2]);
-		if ((down2_1 == REDM || down2_1 == REDK) && down2_2 == EMPTY) moves.push(['jump', x-2, y+2]);
-		if ((up1_1 == REDM || up1_1 == REDK) && up1_2 == EMPTY) moves.push(['jump', x+2, y-2]);
-		if ((up2_1 == REDM || up2_1 == REDK) && up2_2 == EMPTY) moves.push(['jump', x-2, y-2]);
+		if ((down1_1 == REDM || down1_1 == REDK) && down1_2 == EMPTY) moves.push(['jump', x+2, y+2, x+1, y+1]);
+		if ((down2_1 == REDM || down2_1 == REDK) && down2_2 == EMPTY) moves.push(['jump', x-2, y+2, x-1, y+1]);
+		if ((up1_1 == REDM || up1_1 == REDK) && up1_2 == EMPTY) moves.push(['jump', x+2, y-2, x+1, y-1]);
+		if ((up2_1 == REDM || up2_1 == REDK) && up2_2 == EMPTY) moves.push(['jump', x-2, y-2, x-1, y-1]);
 	} else alert("Something has gone horribly wrong"); // this should never happen
-	return moves.length > 0 ? moves : undefined;
+	return moves;
 }
 
 //Will check if the provided moveset requires any jumps, and remove any non-jump moves if a jump is detected.
@@ -144,8 +147,8 @@ function jumpCheck(moves) {
 		if (moves[i][0] == 'jump') {hasJump = true; break;}
 	}
 	if (hasJump) {
-		for (let i in moves) {
-			if (moves[i][0] != 'jump') array.splice(i,1);
+		for (let i = moves.length-1; i>=0; i--) {
+			if (moves[i][0] != 'jump') {moves.splice(i,1);}
 		}
 	}
 	return hasJump;
@@ -167,7 +170,36 @@ function getAllMovesForSide(side) {
 			}
 		}
 	}
-	return moves.length > 0 ? moves : undefined;
+	return moves;
+}
+
+//Check if the provided moveset contains a move with the provided coordinates
+function doesMovesetContainTile(moveset, tx,ty) {
+	for (let i in moveset) {
+		if (moveset[i][1] == tx && moveset[i][2] == ty) return true;
+	}
+	return false;
+}
+
+//Variant of above function, but returns an object rather than a boolean
+function doesMovesetContainTileObject(moveset, tx,ty) {
+	for (let i in moveset) {
+		if (moveset[i][1] == tx && moveset[i][2] == ty) return moveset[i];
+	}
+	return undefined;
+}
+
+//Compares moves in set2 to moves in set1, and returns an array containing common moves.
+//All valid moves as set1, current tile moves as set2
+function getSharedMoves(set1, set2) {
+	let retArray = [];
+	for (let i in set2) {
+		let obj = doesMovesetContainTileObject(set1, set2[i][1], set2[i][2]);
+		if (obj != undefined && obj[0] == set2[i][0]) {
+			retArray.push(obj.slice(0)); //copy the object to prevent any possible strangeness
+		}
+	}
+	return retArray;
 }
 
 //Get tile color based on it's coordinates
@@ -265,13 +297,6 @@ function newPopulatedBoardArray(xSize, ySize, playerRows) {
 	return board;
 }
 
-function doesMovesetContainTile(moveset, tx,ty) {
-	for (let i in moveset) {
-		if (moveset[i][1] == tx && moveset[i][2] == ty) return true;
-	}
-	return false;
-}
-
 //Create a new highlight mask or update an existing one for the provided moveset
 function highlightMoves(moves) {
 	if (moves == undefined) return;
@@ -279,11 +304,15 @@ function highlightMoves(moves) {
 		highlightMask[y] = [];
 		for (let x=0;x<boardState[y].length;x++) {
 			highlightMask[y][x] = doesMovesetContainTile(moves, x, y);
-			console.log(x + "," + y + " " + doesMovesetContainTile(moves, x, y));
+			//console.log(x + "," + y + " " + doesMovesetContainTile(moves, x, y));
 		}
 	}
 }
 
+//Remove the highlight mask
+var removeHighlight = () => {highlightMask = [];}
+
+//Get the number of pieces on the board for the provided side
 function getNumPieces(side) {
 	let man = side == SIDE_RED ? REDM : WHITEM;
 	let king = side == SIDE_RED ? REDK : WHITEK;
@@ -297,31 +326,70 @@ function getNumPieces(side) {
 	return n;
 }
 
+//Perform the provided move from the provided tile coordinates.
+function doMove(tx, ty, move) {
+	let tState = getState(tx, ty);
+	setState(tx, ty, EMPTY);
+	setState(move[1], move[2], tState);
+	if (move[0] == 'jump') {
+		setState(move[3], move[4], EMPTY);
+	}
+}
+
 //Called when a tile is clicked
 function tileClicked(x,y) {
 	if (clickDB == true || gameRunning == false) return;
 	clickDB = true;
 	let state = getState(x,y);
 	if (state == EMPTY) {
-		
+		let move = doesMovesetContainTileObject(selectedTileMoves, x, y);
+		if (move != undefined) {
+			console.log("Valid move");
+			doMove(selectedTile[0], selectedTile[1], move);
+			removeHighlight();
+			drawBoard($("#board"));
+			switchTurn();
+		} else {
+			console.log("Invalid move");
+		}
 	} else {
 		let side = state == REDK || state == REDM ? SIDE_RED : SIDE_WHITE;
 		if (side != currentSide) {clickDB = false; return;}
 		selectedTile = [x,y];
-		alert("correct");
+		console.log("Selected tile at " + x + "," + y);
+		selectedTileMoves = getValidMoves(x,y);
+		selectedTileMoves = getSharedMoves(selectedTileMoves, currentMoves);
+		highlightMoves(selectedTileMoves);
+		drawBoard($("#board"));
+		console.log("Tile has " + selectedTileMoves.length + " valid moves");
 	}
 	clickDB = false;
 }
 
-//After the current turn has ended, this method is called to start the next player's turn.
+//After the current turn has ended, this method is called to start the next side's turn.
 function switchTurn() {
 	gameRunning = false;
+	//Check for additional jump moves on current turn
+	if (jumpedOnce) {
+		currentMoves = getAllMovesForSide(currentSide);
+		if (currentMoves == undefined || currentMoves.length < 1) {gameOver(SIDE_RED ? SIDE_WHITE : SIDE_RED); return;}
+		let hasMoreJumps = jumpCheck(currentMoves);
+		console.log(currentMoves.length);
+		if (hasMoreJumps) {
+			console.log("Jump moves detected, " + currentMoves.length + " Jump(s) possible")
+			gameRunning = true;
+			return;
+		}
+		jumpedOnce = false;
+	}
+	//Switch current side and get values for new side
 	currentSide = currentSide == SIDE_RED ? SIDE_WHITE : SIDE_RED; // This will prefer red over white (as currentSide starts as undefined)
-	console.log(sideString(currentSide) + "'s turn.");
+	console.log(sideString(currentSide) + "'s turn");
 	currentMoves = getAllMovesForSide(currentSide);
 	if (currentMoves == undefined || currentMoves.length < 1) {gameOver(SIDE_RED ? SIDE_WHITE : SIDE_RED); return;}
 	let hasJump = jumpCheck(currentMoves);
-	console.log(hasJump ? ("Jump moves detected, " + moves.length + " Jump(s) possible") : (currentMoves.length + " Move(s) possible"));
+	if (hasJump) jumpedOnce = true;
+	console.log(hasJump ? ("Jump moves detected, " + currentMoves.length + " Jump(s) possible") : (currentMoves.length + " Move(s) possible"));
 	gameRunning = true;
 }
 
@@ -355,3 +423,4 @@ $(function(){
 
 
 
+//This is the most-documented piece of code I have ever written.
