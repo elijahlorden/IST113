@@ -21,6 +21,11 @@ const assetsToPreload = [
 	"./assets/red_man.png",
 	"./assets/red_king.png",
 	"./assets/red_tile.png",
+	"./assets/white_man_yellow.png",
+	"./assets/white_king_yellow.png",
+	"./assets/red_man_yellow.png",
+	"./assets/red_king_yellow.png",
+	"./assets/yellow_tile.png"
 ];
 
 // ------ Gamestate variables ------ \\
@@ -394,9 +399,14 @@ function newGame() {
 	
 }
 
+//Used to update the interface with current game information
+function updateInterface() {
+	
+}
+
 $(function(){
 	preloadAssets();
-	boardState = newPopulatedBoardArray(8,8,3);
+	boardState = newPopulatedBoardArray(12,12,3);
 	drawBoard($("#board"));
 	switchTurn();
 })
