@@ -406,7 +406,7 @@ function updateInterface() {
 
 $(function(){
 	preloadAssets();
-	boardState = newPopulatedBoardArray(12,12,3);
+	boardState = newPopulatedBoardArray(8,8,3);
 	drawBoard($("#board"));
 	switchTurn();
 })
