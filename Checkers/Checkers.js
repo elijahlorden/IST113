@@ -26,16 +26,7 @@ const assetsToPreload = [
 // ------ Gamestate variables ------ \\
 
 // array holding the currrent state of the board
-var boardState = [
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-	[0,0,0,0,0,0,0,0],
-];
+var boardState = [];
 //Array for the board highlight mask
 var highlightMask = [];
 //Boolean for debouncing board clicks
@@ -147,7 +138,7 @@ function jumpCheck(moves) {
 		if (moves[i][0] == 'jump') {hasJump = true; break;}
 	}
 	if (hasJump) {
-		for (let i = moves.length-1; i>=0; i--) {
+		for (let i = moves.length-1; i>=0; i--) { // Must iterate in in descending order to prevent array modifications from causing the loop to skip values (Only took me like half an hour to find that one...)
 			if (moves[i][0] != 'jump') {moves.splice(i,1);}
 		}
 	}
