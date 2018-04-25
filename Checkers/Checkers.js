@@ -385,6 +385,7 @@ function switchTurn() {
 	gameRunning = false;
 	//Check for kings created in the previous turn
 	checkKing(currentSide);
+	updateInterface();
 	//Check for additional jump moves on current turn
 	if (jumpedOnce) {
 		currentMoves = getAllMovesForSide(currentSide);
@@ -419,7 +420,11 @@ function gameOver(winner) {
 }
 //Called when the 'new game' button is clicked
 function newGame() {
+	removeHighlight();
+	boardState = newPopulatedBoardArray(8,8,3);
+	drawBoard($("#board"));
 	updateInterface();
+	switchTurn();
 }
 
 //Used to update the interface with current game information
@@ -439,13 +444,53 @@ function doAITurn(side) {
 	
 }
 
+//Save the current game to storage
+function saveGame() {
+	if (typeof(localStorage) != undefined) {
+		localStorage.setItem("CheckersGameSaveArray", JSON.stringify([boardState, highlightMask, currentSide, jumpedOnce]));
+		alert("Game saved");
+	} else {
+		alert("Your browser does not support Web Storage!\nYou will not be able to save or load games from this browser.");
+	}
+}
+
+//Load the saved game from storage
+function loadGame() {
+	let backTo = gameRunning;
+	gameRunning = false;
+	if (typeof(localStorage) != undefined) {
+		let savedGame = JSON.parse(localStorage.getItem("CheckersGameSaveArray"));
+		console.log(savedGame[0]);
+		if (savedGame != undefined && savedGame.length == 4) {
+			boardState = savedGame[0];
+			highlightMask = savedGame[1];
+			currentSide = savedGame[2];
+			jumpedOnce = savedGame[3];
+		} else {
+			alert("No saved game found");
+			gameRunning = backTo;
+			return;
+		}
+	} else {
+		gameRunning = backTo;
+		alert("Your browser does not support Web Storage!\nYou will not be able to save or load games from this browser.");
+		return;
+	}
+	updateInterface();
+	drawBoard($("#board"));
+	alert("Game loaded");
+	gameRunning = true;
+}
+
 $(function(){
 	preloadAssets();
 	boardState = newPopulatedBoardArray(8,8,3);
 	drawBoard($("#board"));
 	updateInterface();
 	switchTurn();
-	$("#newGameButton").on("click", newGame);
+	$("#cleargame").on("click", newGame);
+	$("#savegame").on("click", saveGame);
+	$("#loadgame").on("click", loadGame);
 })
 
 
