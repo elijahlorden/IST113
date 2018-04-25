@@ -448,7 +448,7 @@ function updateInterface() {
 }
 
 //Will return a random number between min and max (used in the AI)
-function function constrainedRandom(min, max) {
+function constrainedRandom(min, max) {
     return Math.floor(Math.random() * (max - min) ) + min;
 }
 
