@@ -13,6 +13,11 @@ const TILE_YELLOW = 2;
 const SIDE_RED = 0;
 const SIDE_WHITE = 1;
 
+const P_WILL_GET_KING = 0;
+const P_SAFE = 1;
+const P_WILL_CAUSE_CAP = 2;
+const P_LAST_RESORT = 3;
+
 //Array of image URLs that must be persisted throughout the game.
 const assetsToPreload = [
 	"./assets/black_tile.png",
@@ -50,7 +55,7 @@ var selectedTileMoves = [];
 //Array holding the current valid moveset
 var currentMoves = [];
 //Boolean values indicating if either side is AI-controlled.
-var redAI = false;
+var redAI = true;
 var whiteAI = false;
 
 // ------ Functions ------ \\
@@ -353,11 +358,10 @@ function checkKing(side) {
 	if (side == SIDE_RED) row = boardState[boardState.length-1]; else row = boardState[0];
 	let man = side == SIDE_RED ? REDM : WHITEM;
 	let king = side == SIDE_RED ? REDK : WHITEK;
-	
+	//Check the relevent row
 	for (let i in row) {
 		if (row[i] == man) row[i] = king;
 	}
-	//console.log(stringifyState())
 	drawBoard($("#board"));
 }
 
@@ -471,14 +475,6 @@ function doSimMove(side, move, board) {
 	}
 }
 
-//Move priorities:
-//0 = Last resort 1 = Will cause capture. avoid. 2 = Safe, prefer this. 3 = will result in a king, 10000% do this.
-
-const P_LAST_RESORT = 0;
-const P__WILL_CAUSE_CAP = 1;
-const P_SAFE = 3;
-const P_WILL_GET_KING = 4;
-
 //Simulate the provided move, returns move priority
 function getMovePriority(side, move, simState) {
 	let sameMan = side == SIDE_RED ? REDM : WHITEM;
@@ -486,8 +482,8 @@ function getMovePriority(side, move, simState) {
 	let otherMan = side == SIDE_RED ? WHITEM : REDM;
 	let otherKing = side == SIDE_RED ? WHITEK : REDK;
 	
-	let defRow = side == SIDE_RED ? 0 : boardState.length;
-	let kingRow = side == SIDE_RED ? boardState,length : 0;
+	let defRow = side == SIDE_RED ? 0 : boardState.length-1;
+	let kingRow = side == SIDE_RED ? boardState.length-1 : 0;
 	
 	let sourceX = move[0] == 'jump' ? move[5] : move[3];
 	let sourceY = move[0] == 'jump' ? move[6] : move[4];
@@ -500,21 +496,61 @@ function getMovePriority(side, move, simState) {
 	if (destY == kingRow && originTile == sameMan) return P_WILL_GET_KING; // Getting kings if possible is highest priority
 	if (sourceY == defRow) return P_LAST_RESORT; // Leaving the home row undefended is the lowest priority
 	
-	let simBoard = JSON.parse(simState); // If neither of the above will happen, run the simulated turn.
+	//I am attempting to use as little CPU-time as needed with this code, which is why the other two checks are performed first
+	let simBoard = JSON.parse(simState); // If neither of the above will happen, run the simulated turn
 	
+	doSimMove(side, move, simBoard); // Do the provided move on the simulated board
 	
+	let diag1_1 = getState(destX-1, destY+1); // down 1 left 1
+	let diag1_2 = getState(destX+1, destY-1); // up 1 right 1
 	
+	let diag2_1 = getState(destX+1, destY+1); // down 1 right 1
+	let diag2_2 = getState(destX-1, destY-1); // up 1 left 1
 	
-	
-	
-	
+	if (originTile == WHITEM) {
+		if (diag1_1 == EMPTY && (diag1_2 == REDM || diag1_2 == REDK)) return P_WILL_CAUSE_CAP;
+		if (diag2_1 == EMPTY && (diag2_2 == REDM || diag2_2 == REDK)) return P_WILL_CAUSE_CAP;
+		if (diag1_2 == EMPTY && diag1_1 == REDK) return P_WILL_CAUSE_CAP;
+		if (diag2_2 == EMPTY && diag2_1 == REDK) return P_WILL_CAUSE_CAP;
+	} else if (originTile == REDM) {
+		if (diag1_2 == EMPTY && (diag1_1 == WHITEM || diag1_1 == WHITEK)) return P_WILL_CAUSE_CAP;
+		if (diag2_2 == EMPTY && (diag2_1 == WHITEM || diag2_1 == WHITEK)) return P_WILL_CAUSE_CAP;
+		if (diag1_1 == EMPTY && diag1_2 == WHITEK) return P_WILL_CAUSE_CAP;
+		if (diag2_1 == EMPTY && diag2_2 == WHITEK) return P_WILL_CAUSE_CAP;
+	} else if (originTile == WHITEK) {
+		if (diag1_2 == EMPTY && diag1_1 == REDK) return P_WILL_CAUSE_CAP;
+		if (diag2_2 == EMPTY && diag2_1 == REDK) return P_WILL_CAUSE_CAP;
+		if (diag1_1 == EMPTY && diag1_2 == REDK) return P_WILL_CAUSE_CAP;
+		if (diag2_1 == EMPTY && diag2_2 == REDK) return P_WILL_CAUSE_CAP;
+	} else if (originTile == REDK) {
+		if (diag1_2 == EMPTY && diag1_1 == WHITEK) return P_WILL_CAUSE_CAP;
+		if (diag2_2 == EMPTY && diag2_1 == WHITEK) return P_WILL_CAUSE_CAP;
+		if (diag1_1 == EMPTY && diag1_2 == WHITEK) return P_WILL_CAUSE_CAP;
+		if (diag2_1 == EMPTY && diag2_2 == WHITEK) return P_WILL_CAUSE_CAP;
+	}
+	return P_SAFE;
 }
 
 //Run a simulated turn for each move and check if the moved king/man can be jumped in the turn after.  Then assign each move a risk, and return the least-risky move
-//TODO: Update AI code to assess risk
 function getAIMove(side, moves) {
 	if (moves == undefined) return;
 	let priorityMoves = [[],[],[],[]] // Array containing moves ordered based on priority
+	
+	let simState = JSON.stringify(boardState);
+	
+	for (let i in moves) {
+		let priority = getMovePriority(side, moves[i], simState);
+		priorityMoves[priority].push(moves[i]);
+	}
+	
+	for (let i in priorityMoves) { console.log(priorityMoves[i].length + " Moves in priority " + i); }
+	
+	
+	for (let i in priorityMoves) {
+		if (priorityMoves[i].length > 0) {
+			return priorityMoves[i][constrainedRandom(0,priorityMoves[i].length)];
+		}
+	}
 	
 }
 
@@ -557,7 +593,7 @@ function doAITurn(side) {
 			clearInterval(intervalID);
 			clickDB = false;
 		}
-	}, 500);
+	}, 100);
 }
 
 //Save the current game to storage
@@ -596,13 +632,12 @@ function loadGame() {
 	}
 	updateInterface();
 	drawBoard($("#board"));
-	alert("Game loaded");
 	gameRunning = true;
 }
 
 $(function(){
 	preloadAssets();
-	boardState = newPopulatedBoardArray(8,8,3);
+	boardState = newBoardArray(8,8,3);
 	drawBoard($("#board"));
 	updateInterface();
 	switchTurn();
@@ -632,4 +667,4 @@ $(function(){
 
 
 //I decided to skip major refactoring if possible, and as a result the code is quite a mess.  Not my normal code-quality.
-//This is the most-documented piece of code I have ever written.
+//This is the most-documented piece of code I have ever written
