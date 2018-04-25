@@ -431,7 +431,7 @@ function doAITurn(side) {
 
 $(function(){
 	preloadAssets();
-	boardState = newPopulatedBoardArray(4,4,1);
+	boardState = newPopulatedBoardArray(8,8,3);
 	drawBoard($("#board"));
 	updateInterface();
 	switchTurn();
