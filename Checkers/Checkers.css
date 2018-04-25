@@ -12,51 +12,27 @@
  .stats #player1 {
     text-align: center;
     display: inline-block;
-    width: 50%;
+    width: 30%;
     background-color:black;
     box-sizing: border-box;
     padding: 0 2.5em 2.5em;
     border-top-left-radius: 2.5em;
     color:white; }
 
-    .stats #player1 .capturedPiece {
-        width: 2.4vmin;
-        height: 2.4vmin;
-        background-color:red;
-        background-size: 65%;
-        background-repeat: no-repeat;
-        background-position: center;
-        border-radius: 6vmin;
-        display: inline-block;
-        box-sizing: border-box;
-        transition: all 0.2s linear;
-        margin: 5px; }
 
      .stats #player2 {
         text-align: center;
         display: inline-block;
-        width: 50%;
+        width: 30%;
         background-color:black;
         box-sizing: border-box;
         padding: 0 2.5em 2.5em;
         border-top-right-radius: 2.5em;
         color: red; }
-        .stats #player2 .capturedPiece {
-            width: 2.4vmin;
-            height: 2.4vmin;
-            background-color:white;
-            background-size: 65%;
-            background-repeat: no-repeat;
-            background-position: center;
-            border-radius: 6vmin;
-            display: inline-block;
-            box-sizing: border-box;
-            transition: all 0.2s linear;
-            margin: 5px; }
-
+       
         .stats .turn {
             height: 10px;
-            width: 100%;
+            width: 60%;
             background: linear-gradient(to right, lightgreen 50%, transparent 50%);
             border-radius: 0 0 2.5em 2.5em; }
 
@@ -67,6 +43,7 @@
                 border-radius: 5px;
                 cursor: pointer;
                 margin: 20px auto 10px;
+                float: left;
                 padding: 10px;
                 background-color:black;}
 
@@ -78,6 +55,7 @@
                 border-radius: 5px;
                 cursor: pointer;
                 margin: 20px auto 10px;
+                float: left;
                 padding: 10px;
                 background-color:black;}
 
@@ -89,6 +67,7 @@
                 border-radius: 5px;
                 cursor: pointer;
                 margin: 20px auto 10px;
+                float: left;
                 padding: 10px;
                 background-color:black;}
                 

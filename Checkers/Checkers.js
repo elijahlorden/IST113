@@ -38,6 +38,8 @@ var highlightMask = [];
 var clickDB = false;
 //Boolean for stopping any click events during game over, new game, or turn switch states
 var gameRunning = false;
+//Boolean for the pause button
+var gamePaused = false;
 //Integer holding which side is currently playing
 var currentSide = undefined;
 //Boolean indicating if the current side has already jumped once in the current turn
@@ -47,6 +49,9 @@ var selectedTile = [];
 var selectedTileMoves = [];
 //Array holding the current valid moveset
 var currentMoves = [];
+//Boolean values indicating if either side is AI-controlled.
+var redAI = false;
+var whiteAI = false;
 
 // ------ Functions ------ \\
 
@@ -134,10 +139,15 @@ function getValidMoves(x, y) {
 		if ((up1_1 == REDM || up1_1 == REDK) && up1_2 == EMPTY) moves.push(['jump', x+2, y-2, x+1, y-1]);
 		if ((up2_1 == REDM || up2_1 == REDK) && up2_2 == EMPTY) moves.push(['jump', x-2, y-2, x-1, y-1]);
 	} else alert("Something has gone horribly wrong"); // this should never happen
+	//Too lazy to refactor, appending origin tile coordinates to the end of each move (for the AI)
+	for (let i in moves) {
+		moves[i][moves[i].length] = x;
+		moves[i][moves[i].length] = y;
+	}
 	return moves;
 }
 
-//Will check if the provided moveset requires any jumps, and remove any non-jump moves if a jump is detected.
+//Will check if the provided moveset requires any jumps, and remove any non-jump moves if a jump is detected
 function jumpCheck(moves) {
 	let hasJump = false;
 	for (let i in moves) {
@@ -435,18 +445,64 @@ function updateInterface() {
 	} else {
 		turnObj.css("background", "linear-gradient(to left, lightgreen 50%, transparent 50%)");
 	}
+}
+
+//Will return a random number between min and max (used in the AI)
+function function constrainedRandom(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+}
+
+//Run a simulated turn for each move and check if the moved king/man can be jumped in the turn after.  Then assign each move a risk, and return the least-risky move
+function getAIMove(side, moves) {
+	let man = side == SIDE_RED ? REDM : WHITEM;
+	let king = side == SIDE_RED ? REDK : WHITEK;
+	
 	
 	
 }
 
+//A separate doMove function for the AI, making use of move tile coordinates
+function doAIMove(side, move) {
+	let tx = 0;
+	let ty = 0;
+	if (move[0] == 'jump') {
+		tx = move[5];
+		ty = move[6];
+	} else {
+		tx = move[3];
+		ty = move[4];
+	}
+	let tState = getState(tx, ty);
+	setState(tx, ty, EMPTY);
+	setState(move[1], move[2], tState);
+	if (move[0] == 'jump') {
+		setState(move[3], move[4], EMPTY);
+	}
+}
+
 //Execute an AI turn for the provided side
+//The AI does not look at individual tiles like the player does, so it requires tile coordinates to be present in the moveset
+//TODO: Update AI code to assess risk
 function doAITurn(side) {
-	
+	clickDB = true;
+	let hasJumped = false;
+	while (true) {
+		let moves = getAllMovesForSide(side);
+		let hasJump = jumpCheck(moves);
+		if (hasJump) {
+			
+		} else {
+			
+		}
+	}
+	switchTurn();
+	clickDB = false;
 }
 
 //Save the current game to storage
 function saveGame() {
 	if (typeof(localStorage) != undefined) {
+		if (clickDB) return;
 		localStorage.setItem("CheckersGameSaveArray", JSON.stringify([boardState, highlightMask, currentSide, jumpedOnce]));
 		alert("Game saved");
 	} else {
@@ -456,6 +512,7 @@ function saveGame() {
 
 //Load the saved game from storage
 function loadGame() {
+	if (clickDB) return;
 	let backTo = gameRunning;
 	gameRunning = false;
 	if (typeof(localStorage) != undefined) {
@@ -491,6 +548,14 @@ $(function(){
 	$("#cleargame").on("click", newGame);
 	$("#savegame").on("click", saveGame);
 	$("#loadgame").on("click", loadGame);
+	
+	setInterval(function() {
+		if (gamePaused) return;
+		if ((currentSide == SIDE_RED && redAI == true) || (currentSide == SIDE_WHITE && whiteAI == true)) {
+			doAITurn(currentSide);
+		}
+	}, 500);
+	
 })
 
 
