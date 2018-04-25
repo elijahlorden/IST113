@@ -51,7 +51,7 @@ var selectedTileMoves = [];
 var currentMoves = [];
 //Boolean values indicating if either side is AI-controlled.
 var redAI = false;
-var whiteAI = true;
+var whiteAI = false;
 
 // ------ Functions ------ \\
 
@@ -73,6 +73,8 @@ function preloadAssets() {
 // basic get and set functions for the live board state
 var getState = (x,y) => {if (x >= 0 && y >= 0 && y < boardState.length && x < boardState[y].length) return boardState[y][x]; else return undefined;};
 var setState = (x,y,s) => {if (x >= 0 && y >= 0 && y < boardState.length && x < boardState[y].length){boardState[y][x] = s; return true} else {return false}};
+
+
 
 //stringify the side integer
 var sideString = (side) => {return side == SIDE_RED ? "Red" : "White"};
@@ -452,29 +454,75 @@ function constrainedRandom(min, max) {
     return Math.floor(Math.random() * (max - min) ) + min;
 }
 
+//get and set functions for simulated boards
+var getSimState = (x,y,b) => {if (x >= 0 && y >= 0 && y < b.length && x < b[y].length) return b[y][x]; else return undefined;};
+var setSimState = (x,y,s,b) => {if (x >= 0 && y >= 0 && y < b.length && x < b[y].length){b[y][x] = s; return true} else {return false}};
+
+//A separate doMove function for simulated moves
+function doSimMove(side, move, board) {
+	if (move == undefined) return;
+	let tx = move[0] == 'jump' ? move[5] : move[3];
+	let ty = move[0] == 'jump' ? move[6] : move[4];
+	let tState = getSimState(tx, ty, board);
+	setSimState(tx, ty, EMPTY, board);
+	setSimState(move[1], move[2], tState, board);
+	if (move[0] == 'jump') {
+		setSimState(move[3], move[4], EMPTY, board);
+	}
+}
+
+//Move priorities:
+//0 = Last resort 1 = Will cause capture. avoid. 2 = Safe, prefer this. 3 = will result in a king, 10000% do this.
+
+const P_LAST_RESORT = 0;
+const P__WILL_CAUSE_CAP = 1;
+const P_SAFE = 3;
+const P_WILL_GET_KING = 4;
+
+//Simulate the provided move, returns move priority
+function getMovePriority(side, move, simState) {
+	let sameMan = side == SIDE_RED ? REDM : WHITEM;
+	let sameKing = side == SIDE_RED ? REDK : WHITEK;
+	let otherMan = side == SIDE_RED ? WHITEM : REDM;
+	let otherKing = side == SIDE_RED ? WHITEK : REDK;
+	
+	let defRow = side == SIDE_RED ? 0 : boardState.length;
+	let kingRow = side == SIDE_RED ? boardState,length : 0;
+	
+	let sourceX = move[0] == 'jump' ? move[5] : move[3];
+	let sourceY = move[0] == 'jump' ? move[6] : move[4];
+	
+	let destX = move[1];
+	let destY = move[2];
+	
+	let originTile = getState(sourceX,sourceY);
+	
+	if (destY == kingRow && originTile == sameMan) return P_WILL_GET_KING; // Getting kings if possible is highest priority
+	if (sourceY == defRow) return P_LAST_RESORT; // Leaving the home row undefended is the lowest priority
+	
+	let simBoard = JSON.parse(simState); // If neither of the above will happen, run the simulated turn.
+	
+	
+	
+	
+	
+	
+	
+}
+
 //Run a simulated turn for each move and check if the moved king/man can be jumped in the turn after.  Then assign each move a risk, and return the least-risky move
 //TODO: Update AI code to assess risk
 function getAIMove(side, moves) {
 	if (moves == undefined) return;
-	let man = side == SIDE_RED ? REDM : WHITEM;
-	let king = side == SIDE_RED ? REDK : WHITEK;
-	
-	return moves[constrainedRandom(0,moves.length-1)]
+	let priorityMoves = [[],[],[],[]] // Array containing moves ordered based on priority
 	
 }
 
 //A separate doMove function for the AI, making use of move tile coordinates
 function doAIMove(side, move) {
 	if (move == undefined) return;
-	let tx = 0;
-	let ty = 0;
-	if (move[0] == 'jump') {
-		tx = move[5];
-		ty = move[6];
-	} else {
-		tx = move[3];
-		ty = move[4];
-	}
+	let tx = move[0] == 'jump' ? move[5] : move[3];
+	let ty = move[0] == 'jump' ? move[6] : move[4];
 	let tState = getState(tx, ty);
 	setState(tx, ty, EMPTY);
 	setState(move[1], move[2], tState);
@@ -563,11 +611,11 @@ $(function(){
 	$("#loadgame").on("click", loadGame);
 	
 	setInterval(function() {
-		if (gamePaused || clickDB) return;
+		if (gamePaused || clickDB || !gameRunning) return;
 		if ((currentSide == SIDE_RED && redAI == true) || (currentSide == SIDE_WHITE && whiteAI == true)) {
 			doAITurn(currentSide);
 		}
-	}, 500);
+	}, 1);
 	
 })
 
@@ -583,5 +631,5 @@ $(function(){
 
 
 
-
+//I decided to skip major refactoring if possible, and as a result the code is quite a mess.  Not my normal code-quality.
 //This is the most-documented piece of code I have ever written.
