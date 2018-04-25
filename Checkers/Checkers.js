@@ -51,7 +51,7 @@ var selectedTileMoves = [];
 var currentMoves = [];
 //Boolean values indicating if either side is AI-controlled.
 var redAI = false;
-var whiteAI = false;
+var whiteAI = true;
 
 // ------ Functions ------ \\
 
@@ -453,16 +453,19 @@ function constrainedRandom(min, max) {
 }
 
 //Run a simulated turn for each move and check if the moved king/man can be jumped in the turn after.  Then assign each move a risk, and return the least-risky move
+//TODO: Update AI code to assess risk
 function getAIMove(side, moves) {
+	if (moves == undefined) return;
 	let man = side == SIDE_RED ? REDM : WHITEM;
 	let king = side == SIDE_RED ? REDK : WHITEK;
 	
-	
+	return moves[constrainedRandom(0,moves.length-1)]
 	
 }
 
 //A separate doMove function for the AI, making use of move tile coordinates
 function doAIMove(side, move) {
+	if (move == undefined) return;
 	let tx = 0;
 	let ty = 0;
 	if (move[0] == 'jump') {
@@ -482,21 +485,31 @@ function doAIMove(side, move) {
 
 //Execute an AI turn for the provided side
 //The AI does not look at individual tiles like the player does, so it requires tile coordinates to be present in the moveset
-//TODO: Update AI code to assess risk
 function doAITurn(side) {
 	clickDB = true;
+	console.log(sideString(side) + "AI turn");
 	let hasJumped = false;
-	while (true) {
+	let hasMoved = false;
+	let intervalID = setInterval(function(){
 		let moves = getAllMovesForSide(side);
 		let hasJump = jumpCheck(moves);
 		if (hasJump) {
-			
+			hasJumped = true;
+			doAIMove(side, getAIMove(side, moves));
+			drawBoard($("#board"));
+		} else if (!hasJumped) {
+			doAIMove(side, getAIMove(side, moves));
+			drawBoard($("#board"));
+			switchTurn();
+			clearInterval(intervalID);
+			clickDB = false;
 		} else {
-			
+			drawBoard($("#board"));
+			switchTurn();
+			clearInterval(intervalID);
+			clickDB = false;
 		}
-	}
-	switchTurn();
-	clickDB = false;
+	}, 500);
 }
 
 //Save the current game to storage
@@ -550,7 +563,7 @@ $(function(){
 	$("#loadgame").on("click", loadGame);
 	
 	setInterval(function() {
-		if (gamePaused) return;
+		if (gamePaused || clickDB) return;
 		if ((currentSide == SIDE_RED && redAI == true) || (currentSide == SIDE_WHITE && whiteAI == true)) {
 			doAITurn(currentSide);
 		}
