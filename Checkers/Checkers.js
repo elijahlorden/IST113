@@ -394,6 +394,7 @@ function switchTurn() {
 		if (hasMoreJumps) {
 			console.log("Jump moves detected, " + currentMoves.length + " Jump(s) possible")
 			gameRunning = true;
+			updateInterface();
 			return;
 		}
 		jumpedOnce = false;
@@ -406,6 +407,7 @@ function switchTurn() {
 	let hasJump = jumpCheck(currentMoves);
 	if (hasJump) jumpedOnce = true;
 	console.log(hasJump ? ("Jump moves detected, " + currentMoves.length + " Jump(s) possible") : (currentMoves.length + " Move(s) possible"));
+	updateInterface();
 	gameRunning = true;
 }
 
@@ -413,14 +415,22 @@ function switchTurn() {
 function gameOver(winner) {
 	gameRunning = false;
 	console.log(sideString(winner) + " has won the game");
+	updateInterface();
 }
 //Called when the 'new game' button is clicked
 function newGame() {
-	
+	updateInterface();
 }
 
 //Used to update the interface with current game information
 function updateInterface() {
+	let turnObj = $("#turnIndicator");
+	if (currentSide == SIDE_WHITE) {
+		turnObj.css("background", "linear-gradient(to right, lightgreen 50%, transparent 50%)");
+	} else {
+		turnObj.css("background", "linear-gradient(to left, lightgreen 50%, transparent 50%)");
+	}
+	
 	
 }
 
