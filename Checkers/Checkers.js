@@ -57,7 +57,8 @@ var currentMoves = [];
 //Boolean values indicating if either side is AI-controlled.
 var redAI = true;
 var whiteAI = false;
-
+//Integer holding the delay (in miliseconds) between AI moves (updated from input box on game start)
+var AIInterval = 500;
 // ------ Functions ------ \\
 
 //Preload images to prevent flicker
@@ -478,23 +479,16 @@ function doSimMove(side, move, board) {
 //Simulate the provided move, returns move priority
 function getMovePriority(side, move, simState) {
 	let sameMan = side == SIDE_RED ? REDM : WHITEM;
-	let sameKing = side == SIDE_RED ? REDK : WHITEK;
-	let otherMan = side == SIDE_RED ? WHITEM : REDM;
-	let otherKing = side == SIDE_RED ? WHITEK : REDK;
-	
 	let defRow = side == SIDE_RED ? 0 : boardState.length-1;
 	let kingRow = side == SIDE_RED ? boardState.length-1 : 0;
-	
 	let sourceX = move[0] == 'jump' ? move[5] : move[3];
 	let sourceY = move[0] == 'jump' ? move[6] : move[4];
-	
 	let destX = move[1];
 	let destY = move[2];
-	
 	let originTile = getState(sourceX,sourceY);
 	
 	if (destY == kingRow && originTile == sameMan) return P_WILL_GET_KING; // Getting kings if possible is highest priority
-	if (sourceY == defRow) return P_LAST_RESORT; // Leaving the home row undefended is the lowest priority
+	if (sourceY == defRow && originTile == sameMan) return P_LAST_RESORT; // Leaving the home row undefended is the lowest priority
 	
 	//I am attempting to use as little CPU-time as needed with this code, which is why the other two checks are performed first
 	let simBoard = JSON.parse(simState); // If neither of the above will happen, run the simulated turn
@@ -503,10 +497,10 @@ function getMovePriority(side, move, simState) {
 	
 	let diag1_1 = getState(destX-1, destY+1); // down 1 left 1
 	let diag1_2 = getState(destX+1, destY-1); // up 1 right 1
-	
 	let diag2_1 = getState(destX+1, destY+1); // down 1 right 1
 	let diag2_2 = getState(destX-1, destY-1); // up 1 left 1
 	
+	//There are better ways to do this, but this was the quickest way to implement it.
 	if (originTile == WHITEM) {
 		if (diag1_1 == EMPTY && (diag1_2 == REDM || diag1_2 == REDK)) return P_WILL_CAUSE_CAP;
 		if (diag2_1 == EMPTY && (diag2_2 == REDM || diag2_2 == REDK)) return P_WILL_CAUSE_CAP;
@@ -535,23 +529,17 @@ function getMovePriority(side, move, simState) {
 function getAIMove(side, moves) {
 	if (moves == undefined) return;
 	let priorityMoves = [[],[],[],[]] // Array containing moves ordered based on priority
-	
 	let simState = JSON.stringify(boardState);
-	
 	for (let i in moves) {
 		let priority = getMovePriority(side, moves[i], simState);
 		priorityMoves[priority].push(moves[i]);
 	}
-	
 	for (let i in priorityMoves) { console.log(priorityMoves[i].length + " Moves in priority " + i); }
-	
-	
 	for (let i in priorityMoves) {
 		if (priorityMoves[i].length > 0) {
 			return priorityMoves[i][constrainedRandom(0,priorityMoves[i].length)];
 		}
 	}
-	
 }
 
 //A separate doMove function for the AI, making use of move tile coordinates
@@ -600,7 +588,7 @@ function doAITurn(side) {
 function saveGame() {
 	if (typeof(localStorage) != undefined) {
 		if (clickDB) return;
-		localStorage.setItem("CheckersGameSaveArray", JSON.stringify([boardState, highlightMask, currentSide, jumpedOnce]));
+		localStorage.setItem("CheckersGameSaveArray", JSON.stringify([boardState, highlightMask, currentSide, jumpedOnce, AIInterval]));
 		alert("Game saved");
 	} else {
 		alert("Your browser does not support Web Storage!\nYou will not be able to save or load games from this browser.");
@@ -615,11 +603,12 @@ function loadGame() {
 	if (typeof(localStorage) != undefined) {
 		let savedGame = JSON.parse(localStorage.getItem("CheckersGameSaveArray"));
 		console.log(savedGame[0]);
-		if (savedGame != undefined && savedGame.length == 4) {
+		if (savedGame != undefined && savedGame.length == 5) {
 			boardState = savedGame[0];
 			highlightMask = savedGame[1];
 			currentSide = savedGame[2];
 			jumpedOnce = savedGame[3];
+			AIInterval = savedGame[4];
 		} else {
 			alert("No saved game found");
 			gameRunning = backTo;
@@ -666,5 +655,5 @@ $(function(){
 
 
 
-//I decided to skip major refactoring if possible, and as a result the code is quite a mess.  Not my normal code-quality.
+//I decided to skip major refactoring if possible, and as a result the code is quite a mess.
 //This is the most-documented piece of code I have ever written
