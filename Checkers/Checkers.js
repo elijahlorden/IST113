@@ -18,6 +18,9 @@ const P_SAFE = 1;
 const P_WILL_CAUSE_CAP = 2;
 const P_LAST_RESORT = 3;
 
+const MAX_BOARD_SIZE = 25;
+const MIN_BOARD_SIZE = 4;
+
 //Array of image URLs that must be persisted throughout the game.
 const assetsToPreload = [
 	"./assets/black_tile.png",
@@ -59,6 +62,11 @@ var redAI = true;
 var whiteAI = false;
 //Integer holding the delay (in miliseconds) between AI moves (updated from input box on game start)
 var AIInterval = 500;
+//Buffer integers for the board size and filled rows input boxes
+var ngBoardSize = 8;
+var ngfilledRows = 3;
+
+
 // ------ Functions ------ \\
 
 //Preload images to prevent flicker
@@ -435,14 +443,6 @@ function gameOver(winner) {
 	console.log(sideString(winner) + " has won the game");
 	updateInterface();
 }
-//Called when the 'new game' button is clicked
-function newGame() {
-	removeHighlight();
-	boardState = newPopulatedBoardArray(8,8,3);
-	drawBoard($("#board"));
-	updateInterface();
-	switchTurn();
-}
 
 //Used to update the interface with current game information
 function updateInterface() {
@@ -581,7 +581,7 @@ function doAITurn(side) {
 			clearInterval(intervalID);
 			clickDB = false;
 		}
-	}, 100);
+	}, AIInterval);
 }
 
 //Save the current game to storage
@@ -624,6 +624,24 @@ function loadGame() {
 	gameRunning = true;
 }
 
+//Called when the 'new game' button is clicked
+function newGame() {
+	gameRunning = false;
+	removeHighlight();
+	boardState = newPopulatedBoardArray(ngBoardSize,ngBoardSize,ngfilledRows);
+	redAI = $("#redAIBox").prop("checked");
+	whiteAI = $("#whiteAIBox").prop("checked");
+	drawBoard($("#board"));
+	updateInterface();
+	gameRunning = true;
+	switchTurn();
+}
+
+//Get the maximum number of filled rows for the provided board size
+function maxFilledRowsForSize(s) {
+	return Math.round(s/2)-1;
+}
+
 $(function(){
 	preloadAssets();
 	boardState = newBoardArray(8,8,3);
@@ -633,6 +651,33 @@ $(function(){
 	$("#cleargame").on("click", newGame);
 	$("#savegame").on("click", saveGame);
 	$("#loadgame").on("click", loadGame);
+	
+	//Update listener for 'board size' input box
+	$("#boardSize").on("change", function() {
+		let inNum = parseInt(this.value);
+		if (isNaN(inNum)) {
+			this.value = MIN_BOARD_SIZE;
+			ngBoardSize = MIN_BOARD_SIZE;
+		} else {
+			inNum = Math.max(Math.min(MAX_BOARD_SIZE, inNum), MIN_BOARD_SIZE);
+			this.value = inNum;
+			ngBoardSize = inNum;
+		}
+		$("#boardRows").trigger("change");
+	});
+	
+	//Update listener for 'filled rows' input box
+	$("#boardRows").on("change", function() {
+		let inNum = parseInt(this.value);
+		if (isNaN(inNum)) {
+			this.value = 1;
+			ngfilledRows = 1;
+		} else {
+			inNum = Math.max(Math.min(maxFilledRowsForSize(ngBoardSize), inNum),1);
+			this.value = inNum;
+			ngfilledRows = inNum;
+		}
+	});
 	
 	setInterval(function() {
 		if (gamePaused || clickDB || !gameRunning) return;

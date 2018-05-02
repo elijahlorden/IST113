@@ -5,13 +5,28 @@
     <link rel="stylesheet" href="Checkers.css"/>
       </head>
       <div class="stats">
-          <h1>Game Statistics</h1>
-          <div class="wrapper">
+          <h1>Game Options</h1>
+                  <h2>Player Select</h2>
+                  <form action="/action_page.php">
+                  <input type="checkbox" name="AIwhite" id="whiteAIBox">White AI<br>
+                  <input type="checkbox" name="AIred" id="redAIBox">Red AI<br>
+                  </form>      
+                               
+                <h2>Board Size</h2>
+                <form>
+                  Board Size:<br>
+                  <input type="text" name="size" id="boardSize" value = "8">
+                  <br>
+                  Filled Rows:<br>
+                  <input type="text" name="Rows" id="boardRows" value = "3">
+                </form>
+				<br/>
+                  <div class="wrapper">
                   <div id="player1">
-                    <h3>Player 1 (white)</h3>
+                  <h3>Player 1 (white)</h3>
                   </div>
                   <div id="player2">
-                    <h3>Player 2 (red)</h3>
+                  <h3>Player 2 (red)</h3>
                   </div>
                   </div>
                   <div class="turn" id="turnIndicator"></div>
@@ -19,6 +34,9 @@
                   <button id="savegame">Save Game</button>
                   <button id="loadgame">Load Game</button>
   
+
+                  
+
   <body class = "body">
     <div id="board" class = "board">
     
