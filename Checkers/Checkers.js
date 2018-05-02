@@ -558,7 +558,7 @@ function doAIMove(side, move) {
 //Execute an AI turn for the provided side
 //The AI does not look at individual tiles like the player does, so it requires tile coordinates to be present in the moveset
 function doAITurn(side) {
-	clickDB = true;
+	clickDB = true; //Set the click debounce to prevent players from messing with the AI turn
 	console.log(sideString(side) + "AI turn");
 	let hasJumped = false;
 	let hasMoved = false;
@@ -588,7 +588,7 @@ function doAITurn(side) {
 function saveGame() {
 	if (typeof(localStorage) != undefined) {
 		if (clickDB) return;
-		localStorage.setItem("CheckersGameSaveArray", JSON.stringify([boardState, highlightMask, currentSide, jumpedOnce, AIInterval]));
+		localStorage.setItem("CheckersGameSaveArray", JSON.stringify([boardState, highlightMask, currentSide, jumpedOnce, AIInterval, redAI, whiteAI]));
 		alert("Game saved");
 	} else {
 		alert("Your browser does not support Web Storage!\nYou will not be able to save or load games from this browser.");
@@ -609,6 +609,8 @@ function loadGame() {
 			currentSide = savedGame[2];
 			jumpedOnce = savedGame[3];
 			AIInterval = savedGame[4];
+			redAI = savedGame[5];
+			whiteAI = savedGame[6];
 		} else {
 			alert("No saved game found");
 			gameRunning = backTo;
